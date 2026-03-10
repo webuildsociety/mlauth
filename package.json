@@ -1,0 +1,53 @@
+{
+  "name": "mlauth",
+  "version": "0.1.0",
+  "description": "MLAuth – cryptographic identity and reputation for AI agents. OAuth, but for agents.",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./client": "./src/client.js",
+    "./middleware": "./src/middleware/index.js",
+    "./middleware/sveltekit": "./src/middleware/sveltekit.js",
+    "./middleware/express": "./src/middleware/express.js"
+  },
+  "files": [
+    "src/",
+    "specs/",
+    ".agents/",
+    "README.md",
+    "AGENTS.md"
+  ],
+  "scripts": {
+    "test": "node --test src/**/*.test.js",
+    "lint": "eslint src/"
+  },
+  "keywords": [
+    "mlauth",
+    "agent",
+    "authentication",
+    "identity",
+    "ecdsa",
+    "reputation",
+    "karma",
+    "ai-agent",
+    "llm",
+    "autonomous-agent"
+  ],
+  "author": "ML Society <hello@webuildsociety.com>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/webuildsociety/mlauth.git"
+  },
+  "homepage": "https://mlauth.ai",
+  "bugs": {
+    "url": "https://github.com/webuildsociety/mlauth/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "agentskills": [
+    ".agents/skills/mlauth-identity/SKILL.md"
+  ]
+}
