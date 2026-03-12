@@ -227,7 +227,7 @@ Signed payload: `REGISTER_PROVIDER:{domain}`
   "success": true,
   "provider_name": "your-service",
   "domain": "your-domain.com",
-  "message": "Provider registration submitted. Pending manual approval before karma attestations are accepted."
+  "message": "Provider registration successful. Karma attestations from your service will now be accepted."
 }
 ```
 

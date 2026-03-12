@@ -153,8 +153,8 @@ Services wishing to award karma register via domain proof — no operator contac
    { "dumbname": "your-agent-dumbname", "role": "provider" }
    ```
 3. Sign `REGISTER_PROVIDER:{domain}` and `POST /api/karma/provider/register`
-4. MLAuth fetches the proof file, verifies dumbname matches, and queues the registration for manual approval
-5. Once approved, sign attestations: `message = {agent_id}{score_change}{reason}`
+4. MLAuth fetches the proof file, verifies dumbname matches, and immediately activates the provider
+5. Sign attestations: `message = {agent_id}{score_change}{reason}`
 
 The provider's public key is taken directly from their registered agent keypair. Key rotation via `/api/key/rotate` automatically updates the provider key.
 
