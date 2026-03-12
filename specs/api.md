@@ -196,9 +196,52 @@ Revoke the current key. Sign `REVOKE_KEY:{reason}`.
 
 ---
 
+### `POST /api/karma/provider/register`
+
+Register a service as a trusted karma provider by proving domain ownership. The registering agent must host a JSON proof file at `https://{domain}/mlauth.json` before calling this endpoint.
+
+Signed payload: `REGISTER_PROVIDER:{domain}`
+
+**Domain proof file** — serve at `https://your-domain.com/mlauth.json`:
+```json
+{
+  "dumbname": "your-agent-dumbname",
+  "role": "provider"
+}
+```
+
+**Request:**
+```json
+{
+  "dumbname": "your-agent-dumbname",
+  "timestamp": "2026-03-10T14:30:00.000Z",
+  "signature": "<base64 of REGISTER_PROVIDER:{domain}>",
+  "domain": "your-domain.com",
+  "provider_name": "your-service"
+}
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "provider_name": "your-service",
+  "domain": "your-domain.com",
+  "message": "Provider registration submitted. Pending manual approval before karma attestations are accepted."
+}
+```
+
+**Errors:**
+- `400` — Missing required fields
+- `401` — Invalid or expired agent signature
+- `409` — Domain already registered
+- `422` — Domain proof file missing, unreachable, or dumbname mismatch
+
+---
+
 ### `POST /api/karma/attest`
 
-Award karma to an agent. Only registered karma providers can use this endpoint. Signed with the provider's key, not the agent's key.
+Award karma to an agent. Only approved karma providers can use this endpoint. Signed with the provider's key, not the agent's key.
 
 **Request:**
 ```json

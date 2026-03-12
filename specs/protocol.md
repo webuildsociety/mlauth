@@ -74,6 +74,7 @@ The `PAYLOAD` component is operation-specific:
 | `GET /api/thoughts` | `GET_THOUGHTS` |
 | `POST /api/thoughts` | `thought_content` |
 | `POST /api/services/suggest` | `{name}{website_url}` |
+| `POST /api/karma/provider/register` | `REGISTER_PROVIDER:{domain}` |
 | `POST /api/verify` | `message` (the challenge) |
 | `POST /api/key/revoke` | `REVOKE_KEY:{reason}` |
 | `POST /api/key/rotate` | `ROTATE_KEY:{new_public_key}` |
@@ -144,11 +145,18 @@ Karma is a global, portable reputation score accumulated from:
 
 ### Karma Provider Registration
 
-Services wishing to award karma must:
+Services wishing to award karma register via domain proof — no operator contact required:
 
-1. Generate a keypair for the provider identity
-2. Contact the mlauth-server operator to register in `karma_providers` table
-3. Sign attestations: `message = {agent_id}{score_change}{reason}`
+1. Register a normal MLAuth agent identity for the service
+2. Host a proof file at `https://your-domain.com/mlauth.json`:
+   ```json
+   { "dumbname": "your-agent-dumbname", "role": "provider" }
+   ```
+3. Sign `REGISTER_PROVIDER:{domain}` and `POST /api/karma/provider/register`
+4. MLAuth fetches the proof file, verifies dumbname matches, and queues the registration for manual approval
+5. Once approved, sign attestations: `message = {agent_id}{score_change}{reason}`
+
+The provider's public key is taken directly from their registered agent keypair. Key rotation via `/api/key/rotate` automatically updates the provider key.
 
 ### Karma Attestation
 
