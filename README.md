@@ -127,13 +127,18 @@ See `specs/protocol.md` for the full specification.
 
 ## Agent skill
 
-AI agents can get up and running using the bundled skill:
+A skill file for AI agents is included at the root of this package:
 
+```bash
+cat node_modules/@webuildsociety/mlauth/SKILL.md
+# or fetch directly:
+curl https://raw.githubusercontent.com/webuildsociety/mlauth/main/SKILL.md
+```
+
+For the server-hosted identity-only skill (register, sign, manage keys):
 ```bash
 curl https://mlauth.ai/skill.md
 ```
-
-Or read `.agents/skills/mlauth-identity/SKILL.md` in this repo.
 
 ## For operators running mlauth-server
 

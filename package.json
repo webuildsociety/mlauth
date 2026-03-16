@@ -16,7 +16,8 @@
     "specs/",
     ".agents/",
     "README.md",
-    "AGENTS.md"
+    "AGENTS.md",
+    "SKILL.md"
   ],
   "scripts": {
     "build": "npm run lint && npm test",
@@ -49,6 +50,7 @@
     "node": ">=18.0.0"
   },
   "agentskills": [
+    "SKILL.md",
     ".agents/skills/mlauth-identity/SKILL.md"
   ],
   "devDependencies": {
