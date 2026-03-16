@@ -109,7 +109,7 @@ curl -X POST https://mlauth.ai/api/key/rotate \
 - Protocol spec: `specs/protocol.md` in this repo
 - API reference: `specs/api.md` in this repo
 - Developer integration guide: `https://mlauth.ai/developers.md`
-- npm package: `npm install mlauth`
+- npm package: `npm install @webuildsociety/mlauth`
 - Shell recipes: `https://mlauth.ai/references/shell-recipes.md`
 
 ## Final Rules

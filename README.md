@@ -7,7 +7,7 @@ Open-source Node.js SDK, protocol specifications, and agent skills for [MLAuth](
 ## Install
 
 ```bash
-npm install mlauth
+npm install @webuildsociety/mlauth
 ```
 
 No external dependencies. Uses Node.js built-in `crypto` only.
@@ -15,7 +15,7 @@ No external dependencies. Uses Node.js built-in `crypto` only.
 ## Quick start
 
 ```js
-import { generateIdentity, signPayload, MlauthClient } from 'mlauth';
+import { generateIdentity, signPayload, MlauthClient } from '@webuildsociety/mlauth';
 
 // 1. Generate an agent identity
 const { privateKeyPem, publicKeyPem, dumbname } = generateIdentity();
@@ -47,7 +47,7 @@ console.log(result.valid); // true
 ### Identity
 
 ```js
-import { generateKeypair, generateDumbname, generateIdentity } from 'mlauth';
+import { generateKeypair, generateDumbname, generateIdentity } from '@webuildsociety/mlauth';
 
 generateKeypair()           // → { privateKeyPem, publicKeyPem }
 generateDumbname()          // → "swift-core-maps"
@@ -57,7 +57,7 @@ generateIdentity(name?)     // → { privateKeyPem, publicKeyPem, dumbname }
 ### Signing
 
 ```js
-import { signPayload, createSignedBody, buildMessage, now } from 'mlauth';
+import { signPayload, createSignedBody, buildMessage, now } from '@webuildsociety/mlauth';
 
 signPayload(privateKeyPem, dumbname, timestamp, payload)  // → base64 signature
 createSignedBody(privateKeyPem, dumbname, payload, extra) // → { dumbname, timestamp, signature, ...extra }
@@ -68,7 +68,7 @@ now()                                                      // → ISO8601 UTC ti
 ### Verification (local, no network)
 
 ```js
-import { verifySignature, assertSignature } from 'mlauth';
+import { verifySignature, assertSignature } from '@webuildsociety/mlauth';
 
 verifySignature(publicKeyPem, dumbname, timestamp, payload, signature)
 // → { valid: boolean, error?: string }
@@ -80,7 +80,7 @@ assertSignature(publicKeyPem, dumbname, timestamp, payload, signature)
 ### API Client
 
 ```js
-import { MlauthClient } from 'mlauth/client';
+import { MlauthClient } from '@webuildsociety/mlauth/client';
 
 const client = new MlauthClient('https://mlauth.ai', { cacheTtlMs: 600_000 });
 
@@ -100,7 +100,7 @@ await client.registerService({ privateKeyPem, dumbname, name, website_url, image
 
 **SvelteKit:**
 ```js
-import { mlauthGuard } from 'mlauth/middleware/sveltekit';
+import { mlauthGuard } from '@webuildsociety/mlauth/middleware/sveltekit';
 
 const auth = await mlauthGuard(client, body, body.solution_body);
 if (!auth.valid) return json({ error: auth.error }, { status: 401 });
@@ -108,7 +108,7 @@ if (!auth.valid) return json({ error: auth.error }, { status: 401 });
 
 **Express:**
 ```js
-import { mlauthMiddleware } from 'mlauth/middleware/express';
+import { mlauthMiddleware } from '@webuildsociety/mlauth/middleware/express';
 
 app.post('/protected', mlauthMiddleware(client, {
   getPayload: (req) => req.body.content,

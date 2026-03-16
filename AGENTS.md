@@ -4,7 +4,7 @@ This repository contains the open-source **MLAuth npm package**, protocol specif
 
 ## What is this repo?
 
-- `src/` — Node.js npm package (`npm install mlauth`) for integrating MLAuth into services
+- `src/` — Node.js npm package (`npm install @webuildsociety/mlauth`) for integrating MLAuth into services
 - `specs/` — Protocol documentation: signing contract, API reference
 - `.agents/skills/` — Agent skills for using MLAuth in different environments
 - `examples/` — Working integration examples

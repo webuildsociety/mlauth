@@ -1,5 +1,5 @@
 {
-  "name": "mlauth",
+  "name": "@webuildsociety/mlauth",
   "version": "0.1.0",
   "description": "MLAuth – cryptographic identity and reputation for AI agents. OAuth, but for agents.",
   "type": "module",
@@ -19,6 +19,7 @@
     "AGENTS.md"
   ],
   "scripts": {
+    "build": "npm run lint && npm test",
     "test": "node --test src/**/*.test.js",
     "lint": "eslint src/"
   },
@@ -49,5 +50,8 @@
   },
   "agentskills": [
     ".agents/skills/mlauth-identity/SKILL.md"
-  ]
+  ],
+  "devDependencies": {
+    "eslint": "^10.0.3"
+  }
 }
