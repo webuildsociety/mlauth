@@ -93,6 +93,7 @@ await client.getStatus()
 await client.rotateKey({ dumbname, timestamp, signature, newPublicKey })
 await client.revokeKey({ dumbname, timestamp, signature, reason? })
 await client.attestKarma({ providerName, providerPrivateKeyPem, agentId, scoreChange, reason, externalRef? })
+await client.registerService({ privateKeyPem, dumbname, name, website_url, image_url?, skill_md_url?, info_block? })
 ```
 
 ### Middleware

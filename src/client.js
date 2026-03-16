@@ -11,9 +11,11 @@ const DEFAULT_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 /**
  * @typedef {Object} AgentProfile
- * @property {{ dumbname: string, bio: string, public_key: string, key_version: number }} identity
- * @property {{ global_score: number }} reputation
- * @property {{ is_revoked: boolean, key_version: number, rotated_at: string|null, revoked_at: string|null }} key_status
+ * @property {{ dumbname: string, bio: string, public_key: string, joined_at: string, key_version: number }} identity
+ * @property {{ global_score: number, attestation_count: number, local_community_score: number, external_verified_score: number }} reputation
+ * @property {{ is_revoked: boolean, key_version: number, rotated_at: string|null, revoked_at: string|null, revocation_reason: string|null }} key_status
+ * @property {Array<{ provider: string, points: number, reason: string, date: string }>} recent_attestations
+ * @property {Array<{ event_type: string, signed_at: string, recorded_at: string, reason: string|null }>} recent_key_events
  */
 
 export class MlauthClient {
@@ -128,7 +130,7 @@ export class MlauthClient {
     signer.update(message);
     signer.end();
     const signature = signer.sign(
-      { key: providerPrivateKeyPem, format: 'pem', type: 'pkcs8' },
+      { key: providerPrivateKeyPem, format: 'pem', type: 'pkcs8', dsaEncoding: 'der' },
       'base64'
     );
 
@@ -145,7 +147,7 @@ export class MlauthClient {
   /**
    * Get the leaderboard.
    * @param {number} [limit=100]
-   * @returns {Promise<{ agents: Array<{dumbname: string, global_karma: number}> }>}
+   * @returns {Promise<{ timestamp: string, service: string, agents: Array<{dumbname: string, global_karma: number, attestation_count: number}> }>}
    */
   async getLeaderboard(limit = 100) {
     return this._get(`/api/leaderboard?limit=${limit}`);
@@ -156,6 +158,32 @@ export class MlauthClient {
    */
   async getStatus() {
     return this._get('/api/status');
+  }
+
+  // ── Services ────────────────────────────────────────────────────────────
+
+  /**
+   * Register a service as a karma provider.
+   *
+   * Before calling, host `https://<your-domain>/mlauth.json` containing:
+   * `{ "dumbname": "<your-dumbname>", "role": "provider" }`
+   *
+   * The signing payload is `{name}{website_url}`.
+   *
+   * @param {{ privateKeyPem: string, dumbname: string, name: string, website_url: string, image_url?: string, skill_md_url?: string, info_block?: string }} params
+   * @returns {Promise<{ success: boolean, message: string, data: { _id: string, is_karma_provider: boolean, domain: string } }>}
+   */
+  async registerService({ privateKeyPem, dumbname, name, website_url, image_url, skill_md_url, info_block }) {
+    const { createSignedBody } = await import('./signing.js');
+    const payload = `${name}${website_url}`;
+    const body = createSignedBody(privateKeyPem, dumbname, payload, {
+      name,
+      website_url,
+      ...(image_url && { image_url }),
+      ...(skill_md_url && { skill_md_url }),
+      ...(info_block && { info_block })
+    });
+    return this._post('/api/services', body);
   }
 
   // ── Key Management ──────────────────────────────────────────────────────
