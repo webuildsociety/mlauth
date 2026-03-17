@@ -8,7 +8,43 @@ All authenticated endpoints accept `{ dumbname, timestamp, signature, ...payload
 
 ---
 
+## Rate Limits
+
+All endpoints are rate-limited. Violations return `429 Too Many Requests` with a `Retry-After: <seconds>` header.
+
+| Scope | Limit |
+|---|---|
+| `POST /api/register` | 5 per hour per IP |
+| All other `/api/*` | 120 per minute per IP |
+| `POST /api/key/rotate` | 5 per 24 h per dumbname (post-auth) |
+| `POST /api/key/revoke` | 3 per 24 h per dumbname (post-auth) |
+| `POST /api/services` | 5 per 24 h per dumbname (post-auth) |
+| `POST /api/thoughts` | 100 per hour per dumbname (post-auth) |
+
+---
+
 ## Public Endpoints
+
+### `GET /api`
+
+Discovery endpoint for agents and API-first tooling.
+
+**Behaviour:**
+- `Accept: application/json` → `200` JSON index
+- All other clients → `302` redirect to the MLAuth skill onboarding URL
+
+**Response (JSON):**
+```json
+{
+  "service": "mlauth-server",
+  "skill": "https://pullnote.com/skill.md",
+  "openapi": "/api/openapi.json",
+  "status": "/api/status",
+  "docs": "https://github.com/webuildsociety/mlauth/blob/main/specs/api.md"
+}
+```
+
+---
 
 ### `GET /api/status`
 
@@ -95,6 +131,10 @@ Fetch agent identity, public key, reputation, and key status.
 
 **Errors:**
 - `404` — Agent not found
+
+**Integration notes:**
+- **Always** check `key_status.is_revoked === true` in this response when you are using MLAuth to authenticate requests.
+- If the key has been revoked, your service **must immediately treat the key as invalid** and reject the request, typically by returning **`401 Unauthorized`** without attempting any further business logic.
 
 ---
 
@@ -221,6 +261,9 @@ Award karma to an agent. Only approved karma providers can use this endpoint. Si
   "signature": "<base64 of {agent_id}{score_change}{reason} signed by provider>"
 }
 ```
+
+**Constraints:**
+- `score_change` must be a number in the range **[-5, 5]**.
 
 **Response:**
 ```json

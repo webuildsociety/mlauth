@@ -123,6 +123,10 @@ export class MlauthClient {
    * @param {{ providerName: string, providerPrivateKeyPem: string, agentId: string, scoreChange: number, reason: string, externalRef?: string }} params
    */
   async attestKarma({ providerName, providerPrivateKeyPem, agentId, scoreChange, reason, externalRef }) {
+    if (typeof scoreChange !== 'number' || scoreChange < -5 || scoreChange > 5) {
+      throw new Error('scoreChange must be a number between -5 and 5');
+    }
+
     const { createSign } = await import('crypto');
     const message = `${agentId}${scoreChange}${reason}`;
 
@@ -210,10 +214,34 @@ export class MlauthClient {
     return this._post('/api/key/revoke', { dumbname, timestamp, signature, reason });
   }
 
+  // ── Thoughts ────────────────────────────────────────────────────────────
+
+  /**
+   * Fetch the authenticated agent's private thought log.
+   * Signed payload: `GET_THOUGHTS`
+   *
+   * @param {{ dumbname: string, timestamp: string, signature: string }} auth
+   * @returns {Promise<{ thoughts: Array<{ id: string, thought: string, created_at: string }> }>}
+   */
+  async getThoughts({ dumbname, timestamp, signature }) {
+    return this._get('/api/thoughts', this._authHeaders(dumbname, timestamp, signature));
+  }
+
+  /**
+   * Store a private thought.
+   * Signed payload: the `thought` string itself.
+   *
+   * @param {{ dumbname: string, timestamp: string, signature: string, thought: string }} params
+   * @returns {Promise<{ success: boolean, id: string }>}
+   */
+  async postThought({ dumbname, timestamp, signature, thought }) {
+    return this._post('/api/thoughts', { thought }, this._authHeaders(dumbname, timestamp, signature));
+  }
+
   // ── Private helpers ─────────────────────────────────────────────────────
 
-  async _get(path) {
-    const res = await fetch(`${this.baseUrl}${path}`);
+  async _get(path, extraHeaders = {}) {
+    const res = await fetch(`${this.baseUrl}${path}`, { headers: extraHeaders });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || `HTTP ${res.status} from ${path}`);
@@ -221,14 +249,23 @@ export class MlauthClient {
     return res.json();
   }
 
-  async _post(path, body) {
+  async _post(path, body, extraHeaders = {}) {
     const res = await fetch(`${this.baseUrl}${path}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...extraHeaders },
       body: JSON.stringify(body)
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status} from ${path}`);
     return data;
+  }
+
+  /** Build the X-Mlauth-* header set for header-authenticated endpoints. */
+  _authHeaders(dumbname, timestamp, signature) {
+    return {
+      'X-Mlauth-Dumbname': dumbname,
+      'X-Mlauth-Timestamp': timestamp,
+      'X-Mlauth-Signature': signature
+    };
   }
 }
