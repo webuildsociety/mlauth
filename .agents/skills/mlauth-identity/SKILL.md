@@ -44,7 +44,7 @@ Save your `dumbname` — it is your persistent identity.
 DUMBNAME="your-unique-name"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 PAYLOAD="your-operation-payload"
-SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign private.pem | base64)
+SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign private.pem | openssl base64 -A)
 
 curl -X POST https://some-mlauth-service.com/api/endpoint \
   -H "Content-Type: application/json" \
@@ -57,8 +57,10 @@ Sign: `{DUMBNAME}{TIMESTAMP}{PAYLOAD}` — concatenated, no separators.
 
 - **Algorithm:** ECDSA + SHA-256 (secp256k1)
 - **Timestamp:** ISO8601 UTC
-- **Signature encoding:** base64
+- **Signature encoding:** base64 (single line — use `openssl base64 -A`)
 - **Validity window:** 5 minutes
+
+> **Critical:** Use `openssl base64 -A` to encode signatures in shell, not `base64` or `base64 -w 0`. The system `base64` wraps output at 76 chars; a signature (~96 chars) will always wrap, breaking the HTTP header. `base64 -w 0` is Linux-only. `openssl base64 -A` works on macOS and Linux.
 
 ## Payload Reference
 
@@ -75,7 +77,7 @@ Sign: `{DUMBNAME}{TIMESTAMP}{PAYLOAD}` — concatenated, no separators.
 ```bash
 # Revoke (if compromised)
 PAYLOAD="REVOKE_KEY:KEY_COMPROMISED"
-SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign private.pem | base64)
+SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign private.pem | openssl base64 -A)
 curl -X POST https://mlauth.ai/api/key/revoke \
   -H "Content-Type: application/json" \
   -d "{\"dumbname\":\"$DUMBNAME\",\"timestamp\":\"$TIMESTAMP\",\"signature\":\"$SIG\",\"reason\":\"KEY_COMPROMISED\"}"
@@ -85,7 +87,7 @@ openssl ecparam -name secp256k1 -genkey -noout -out new-private.pem
 openssl ec -in new-private.pem -pubout -out new-public.pem
 NEW_KEY=$(cat new-public.pem)
 PAYLOAD="ROTATE_KEY:${NEW_KEY}"
-SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign private.pem | base64)
+SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign private.pem | openssl base64 -A)
 curl -X POST https://mlauth.ai/api/key/rotate \
   -H "Content-Type: application/json" \
   -d "{\"dumbname\":\"$DUMBNAME\",\"timestamp\":\"$TIMESTAMP\",\"signature\":\"$SIG\",\"new_public_key\":\"$NEW_KEY\"}"

@@ -53,8 +53,10 @@ All three components are concatenated with no separator or delimiter.
 
 ```
 signature = ECDSA-SHA256-sign(privateKey, message)
-encoding  = base64
+encoding  = base64 (single line, no line breaks)
 ```
+
+> **Shell signing:** Use `openssl base64 -A` to encode the signature. The system `base64` command wraps output at 76 characters by default; a secp256k1 signature encodes to ~96 chars and will always wrap. `base64 -w 0` disables wrapping on Linux but is not supported on macOS. `openssl base64 -A` produces a single unwrapped line on both platforms.
 
 ### Timestamp
 
@@ -214,6 +216,6 @@ Simpler but adds a network round-trip on every request.
 ## Wire Format Notes
 
 - All timestamps: ISO8601 UTC with milliseconds (`2026-03-10T14:30:00.000Z`)
-- All signatures: URL-safe base64 or standard base64 (server accepts both)
+- All signatures: standard base64, single line (no wrapping). Generate with `openssl base64 -A` in shell, or use the mlauth npm package which handles this automatically.
 - Public keys: SPKI PEM with real newlines (not `\n` escape sequences)
 - Dumbnames: lowercase ASCII, hyphens only, max 50 chars

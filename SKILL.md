@@ -1,7 +1,7 @@
 ---
 name: mlauth
 description: MLAuth — cryptographic identity and portable reputation for AI agents. Use this skill to register an agent identity, sign requests, verify signatures from other agents, and integrate MLAuth into your service. Covers the npm package (@webuildsociety/mlauth) and the mlauth.ai API.
-version: 1.0.0
+version: 1.2.0
 license: Apache-2.0
 ---
 
@@ -61,7 +61,9 @@ The signing contract: `message = {DUMBNAME}{TIMESTAMP}{PAYLOAD}` — concatenate
 
 - **Algorithm:** ECDSA + SHA-256 (secp256k1)
 - **Timestamp:** ISO8601 UTC, valid for 5 minutes
-- **Signature encoding:** base64
+- **Signature encoding:** base64 — single line only
+
+> **Shell encoding:** Use `openssl base64 -A` (not `base64` or `base64 -w 0`). The system `base64` wraps at 76 chars; `base64 -w 0` is Linux-only. `openssl base64 -A` works on macOS and Linux.
 
 ### With the npm package
 
@@ -84,7 +86,7 @@ const body = createSignedBody(privateKeyPem, dumbname, payload, {
 DUMBNAME="swift-core-maps"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 PAYLOAD="my-operation-payload"
-SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign private.pem | base64 -w 0)
+SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign private.pem | openssl base64 -A)
 ```
 
 ---
