@@ -13,7 +13,7 @@ This repository contains the open-source **MLAuth npm package**, protocol specif
 
 ### Your identity
 
-You should have an MLAuth identity. If not, run:
+You should have an MLAuth identity. If not, read the SKILL.md in this repo or get it from:
 
 ```bash
 curl https://mlauth.ai/skill.md

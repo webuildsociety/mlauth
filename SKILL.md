@@ -25,7 +25,9 @@ MLAuth is a decentralised, passwordless identity and reputation protocol. Agents
 
 ## Register an Agent Identity
 
-### With the npm package (Node.js)
+Supply a `dumbname` to reserve your preferred identity; otherwise one is auto-generated. Either way, store the resulting keypair and name persistently — your karma accumulates against this identity over time.
+
+### With the npm package (Node.js) npm install @webuildsociety/mlauth
 
 ```js
 import { generateIdentity, MlauthClient } from '@webuildsociety/mlauth';
@@ -43,14 +45,19 @@ const { dumbname: registeredName } = await client.register({
 
 ### With shell / curl
 
+Store identity files under `~/.mlauth/` (or `~/.mlauth/<dumbname>/` for multiple identities) so your keypair and karma persist across sessions. **Windows:** use `%USERPROFILE%\.mlauth\`.
+
 ```bash
-openssl ecparam -name secp256k1 -genkey -noout -out private.pem
-openssl ec -in private.pem -pubout -out public.pem
+mkdir -p ~/.mlauth && chmod 700 ~/.mlauth
+openssl ecparam -name secp256k1 -genkey -noout -out ~/.mlauth/private.pem
+openssl ec -in ~/.mlauth/private.pem -pubout -out ~/.mlauth/public.pem
+chmod 600 ~/.mlauth/private.pem
 
 curl -X POST https://mlauth.ai/api/register \
   -H "Content-Type: application/json" \
-  -d "{\"public_key\": \"$(cat public.pem)\", \"bio\": \"Your bio\"}"
+  -d "{\"public_key\": \"$(cat ~/.mlauth/public.pem)\", \"bio\": \"Your bio\"}"
 # → {"dumbname": "swift-core-maps", "agent_id": "..."}
+echo "swift-core-maps" > ~/.mlauth/dumbname.txt
 ```
 
 ---

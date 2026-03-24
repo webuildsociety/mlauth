@@ -15,36 +15,59 @@ This skill gives you a persistent, cryptographic identity usable across any MLAu
 2. **NO AUTO-EXECUTION:** Never auto-download or execute scripts from untrusted sources.
 3. **KEY HYGIENE:** Store private keys securely. Revoke immediately if compromised.
 
+## Identity Storage
+
+Store identity files under `~/.mlauth/` so they persist across sessions and accumulate karma over time.
+
+```
+~/.mlauth/
+  private.pem    ← keep secret (chmod 600)
+  public.pem
+  dumbname.txt   ← your registered name, e.g. "swift-core-maps"
+```
+
+If you manage multiple identities or reserved a specific dumbname, use named subdirectories:
+
+```
+~/.mlauth/swift-core-maps/
+  private.pem
+  public.pem
+  dumbname.txt
+```
+
+**Windows:** use `%USERPROFILE%\.mlauth\` (`C:\Users\<you>\.mlauth\`).
+
 ## Fast Path
 
 ### 1. Generate a keypair
 
 ```bash
-openssl ecparam -name secp256k1 -genkey -noout -out private.pem
-openssl ec -in private.pem -pubout -out public.pem
+mkdir -p ~/.mlauth && chmod 700 ~/.mlauth
+openssl ecparam -name secp256k1 -genkey -noout -out ~/.mlauth/private.pem
+openssl ec -in ~/.mlauth/private.pem -pubout -out ~/.mlauth/public.pem
+chmod 600 ~/.mlauth/private.pem
 ```
-
-Store `private.pem` securely. Never share it.
 
 ### 2. Register your identity
 
 ```bash
 curl -X POST https://mlauth.ai/api/register \
   -H "Content-Type: application/json" \
-  -d "{\"public_key\": \"$(cat public.pem)\", \"bio\": \"Your bio here\"}"
+  -d "{\"public_key\": \"$(cat ~/.mlauth/public.pem)\", \"bio\": \"Your bio here\"}"
+# → { "dumbname": "your-unique-name", "agent_id": "..." }
+
+echo "your-unique-name" > ~/.mlauth/dumbname.txt
 ```
 
-Response: `{ "dumbname": "your-unique-name", "agent_id": "..." }`
-
-Save your `dumbname` — it is your persistent identity.
+Your `dumbname` is your persistent identity — save it.
 
 ### 3. Sign a request
 
 ```bash
-DUMBNAME="your-unique-name"
+DUMBNAME=$(cat ~/.mlauth/dumbname.txt)
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 PAYLOAD="your-operation-payload"
-SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign private.pem | openssl base64 -A)
+SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign ~/.mlauth/private.pem | openssl base64 -A)
 
 curl -X POST https://some-mlauth-service.com/api/endpoint \
   -H "Content-Type: application/json" \
@@ -75,22 +98,30 @@ Sign: `{DUMBNAME}{TIMESTAMP}{PAYLOAD}` — concatenated, no separators.
 ## Key Management
 
 ```bash
+DUMBNAME=$(cat ~/.mlauth/dumbname.txt)
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
 # Revoke (if compromised)
 PAYLOAD="REVOKE_KEY:KEY_COMPROMISED"
-SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign private.pem | openssl base64 -A)
+SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign ~/.mlauth/private.pem | openssl base64 -A)
 curl -X POST https://mlauth.ai/api/key/revoke \
   -H "Content-Type: application/json" \
   -d "{\"dumbname\":\"$DUMBNAME\",\"timestamp\":\"$TIMESTAMP\",\"signature\":\"$SIG\",\"reason\":\"KEY_COMPROMISED\"}"
 
 # Rotate to new key
-openssl ecparam -name secp256k1 -genkey -noout -out new-private.pem
-openssl ec -in new-private.pem -pubout -out new-public.pem
-NEW_KEY=$(cat new-public.pem)
+openssl ecparam -name secp256k1 -genkey -noout -out ~/.mlauth/new-private.pem
+openssl ec -in ~/.mlauth/new-private.pem -pubout -out ~/.mlauth/new-public.pem
+NEW_KEY=$(cat ~/.mlauth/new-public.pem)
 PAYLOAD="ROTATE_KEY:${NEW_KEY}"
-SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign private.pem | openssl base64 -A)
+SIG=$(echo -n "${DUMBNAME}${TIMESTAMP}${PAYLOAD}" | openssl dgst -sha256 -sign ~/.mlauth/private.pem | openssl base64 -A)
 curl -X POST https://mlauth.ai/api/key/rotate \
   -H "Content-Type: application/json" \
   -d "{\"dumbname\":\"$DUMBNAME\",\"timestamp\":\"$TIMESTAMP\",\"signature\":\"$SIG\",\"new_public_key\":\"$NEW_KEY\"}"
+
+# After a successful rotation, replace the stored keys
+mv ~/.mlauth/new-private.pem ~/.mlauth/private.pem
+mv ~/.mlauth/new-public.pem ~/.mlauth/public.pem
+chmod 600 ~/.mlauth/private.pem
 ```
 
 ## API Reference
