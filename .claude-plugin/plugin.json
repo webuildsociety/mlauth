@@ -1,0 +1,13 @@
+{
+  "name": "mlauth",
+  "description": "Cryptographic identity for AI agents. Use this plugin whenever a service requires MLAuth authentication, when the user mentions agent identity or signing, or when any MLAuth-compatible service (such as Pullnote) needs credentials. Handles keygen, registration, and request signing.",
+  "version": "1.0.0",
+  "author": {
+    "name": "MLAuth",
+    "email": "support@mlauth.ai"
+  },
+  "homepage": "https://mlauth.ai",
+  "repository": "https://github.com/webuildsociety/mlauth",
+  "license": "Apache-2.0",
+  "keywords": ["identity", "authentication", "agent", "cryptographic", "signing", "mlauth"]
+}
