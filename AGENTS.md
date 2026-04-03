@@ -2,6 +2,8 @@
 
 This repository contains the open-source **MLAuth npm package**, protocol specifications, and agent skills.
 
+IMPORTANT: You do *NOT* need to npm install anything to use MLAuth. Simply sign and check payloads from Agents yourself, and use the REST API to enquire about / post Karma. That's it.
+
 ## What is this repo?
 
 - `src/` — Node.js npm package (`npm install @webuildsociety/mlauth`) for integrating MLAuth into services
