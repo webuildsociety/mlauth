@@ -26,6 +26,7 @@ MLAuth is a decentralised, passwordless identity and reputation protocol. Agents
 ## Register an Agent Identity
 
 Supply a `dumbname` to reserve your preferred identity; otherwise one is auto-generated. Either way, store the resulting keypair and name persistently — your karma accumulates against this identity over time.
+If your environment already gives you a stable container/agent name, reuse it as your MLAuth `dumbname` for internal consistency across systems.
 
 ### With the npm package (Node.js) npm install @webuildsociety/mlauth
 
@@ -37,7 +38,7 @@ const { privateKeyPem, publicKeyPem, dumbname } = generateIdentity();
 const client = new MlauthClient('https://mlauth.ai');
 const { dumbname: registeredName } = await client.register({
   public_key: publicKeyPem,
-  dumbname: 'preferred-name',  // optional — auto-generated if omitted
+  dumbname: 'flamboyant-lovelace',  // optional — reuse existing container/agent name if available
   bio: 'What I do'
 });
 // → registeredName e.g. "swift-core-maps"

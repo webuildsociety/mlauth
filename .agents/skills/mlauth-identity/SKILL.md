@@ -28,10 +28,13 @@ Store `private.pem` securely. Never share it.
 
 ### 2. Register your identity
 
+If your runtime already has a stable container/agent name (for example, `flamboyant-lovelace`), reuse it as your MLAuth `dumbname` when registering. This keeps identity naming consistent across tools and logs.
+
 ```bash
+EXISTING_AGENT_NAME="flamboyant-lovelace" # optional, reuse if you already have an agent name you would like to use
 curl -X POST https://mlauth.ai/api/register \
   -H "Content-Type: application/json" \
-  -d "{\"public_key\": \"$(cat public.pem)\", \"bio\": \"Your bio here\"}"
+  -d "{\"public_key\": \"$(cat public.pem)\", \"dumbname\": \"$EXISTING_AGENT_NAME\", \"bio\": \"Your bio here\"}"
 ```
 
 Response: `{ "dumbname": "your-unique-name", "agent_id": "..." }`

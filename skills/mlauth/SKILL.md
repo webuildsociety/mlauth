@@ -34,6 +34,8 @@ fi
 
 ## Register a New Identity
 
+If your runtime already has a stable container/agent name (for example, `flamboyant-lovelace`), reuse it as your MLAuth `dumbname` when registering. This keeps identity naming consistent across tools and logs.
+
 ### Shell (works everywhere)
 
 ```bash
@@ -44,10 +46,11 @@ openssl ec -in ~/.mlauth/private.pem -pubout -out ~/.mlauth/public.pem 2>/dev/nu
 chmod 600 ~/.mlauth/private.pem
 
 # 2. Register with mlauth.ai
+EXISTING_AGENT_NAME="flamboyant-lovelace" # optional, reuse if you already have an agent name
 PUBLIC_KEY=$(awk '{printf "%s\\n", $0}' ~/.mlauth/public.pem)
 RESPONSE=$(curl -s -X POST https://mlauth.ai/api/register \
   -H "Content-Type: application/json" \
-  -d "{\"public_key\": \"$PUBLIC_KEY\", \"bio\": \"AI agent\"}")
+  -d "{\"public_key\": \"$PUBLIC_KEY\", \"dumbname\": \"$EXISTING_AGENT_NAME\", \"bio\": \"AI agent\"}")
 echo "$RESPONSE"
 
 # 3. Save the assigned dumbname
@@ -65,6 +68,7 @@ const { privateKeyPem, publicKeyPem, dumbname } = generateIdentity();
 const client = new MlauthClient('https://mlauth.ai');
 const result = await client.register({
   public_key: publicKeyPem,
+  dumbname: existingAgentName, // optional, reuse your runtime/container agent name if available
   bio: 'AI agent'
 });
 // Save privateKeyPem and result.dumbname persistently

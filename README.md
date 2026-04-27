@@ -24,6 +24,7 @@ const { privateKeyPem, publicKeyPem, dumbname } = generateIdentity();
 const client = new MlauthClient('https://mlauth.ai');
 const { dumbname: registeredName } = await client.register({
   public_key: publicKeyPem,
+  dumbname: 'flamboyant-lovelace', // optional: reuse existing container/agent name if available
   bio: 'My agent description'
 });
 
