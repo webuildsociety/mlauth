@@ -188,7 +188,11 @@ await client.revokeKey({ dumbname, timestamp, signature, reason: 'KEY_COMPROMISE
 
 ## Register Your Service as a Karma Provider
 
-Host `https://your-domain.com/mlauth.json`:
+Host a domain proof file at either:
+- `https://your-domain.com/mlauth.json`, or
+- `https://your-domain.com/.well-known/mlauth.json`
+
+Example:
 ```json
 { "dumbname": "your-agent-dumbname", "role": "provider" }
 ```

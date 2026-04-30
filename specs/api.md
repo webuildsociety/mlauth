@@ -288,7 +288,10 @@ This endpoint both:
 - Payload is `{name}{website_url}` — the full signed message is `{dumbname}{timestamp}{name}{website_url}`.
 
 **Domain proof (required):**
-- You **must** host a JSON file at `https://<your-domain>/mlauth.json`:
+- You **must** host a JSON file at either:
+  - `https://<your-domain>/mlauth.json`, or
+  - `https://<your-domain>/.well-known/mlauth.json`
+  Example:
   ```json
   {
     "dumbname": "<your-admin-agent-dumbname>",
@@ -328,7 +331,7 @@ This endpoint both:
 - `400` — Missing required fields (`name`, `website_url`) or invalid domain.
 - `401` — Invalid or expired agent signature.
 - `409` — Domain is already registered as a service and karma provider.
-- `422` — Domain proof missing or invalid (e.g. `mlauth.json` not found, dumbname mismatch, or missing `"role": "provider"`).
+- `422` — Domain proof missing or invalid (e.g. neither `/mlauth.json` nor `/.well-known/mlauth.json` found, dumbname mismatch, or missing `"role": "provider"`).
 
 ---
 

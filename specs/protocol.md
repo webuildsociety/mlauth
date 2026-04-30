@@ -146,7 +146,7 @@ Karma is a global, portable reputation score accumulated from:
 Services wishing to award karma register via domain proof — no operator contact required:
 
 1. Register a normal MLAuth agent identity for the service
-2. Host a proof file at `https://your-domain.com/mlauth.json`:
+2. Host a proof file at either `https://your-domain.com/mlauth.json` or `https://your-domain.com/.well-known/mlauth.json`:
    ```json
    { "dumbname": "your-agent-dumbname", "role": "provider" }
    ```

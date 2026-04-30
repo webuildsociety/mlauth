@@ -169,7 +169,10 @@ export class MlauthClient {
   /**
    * Register a service as a karma provider.
    *
-   * Before calling, host `https://<your-domain>/mlauth.json` containing:
+   * Before calling, host domain proof at either:
+   * - `https://<your-domain>/mlauth.json`
+   * - `https://<your-domain>/.well-known/mlauth.json`
+   * containing:
    * `{ "dumbname": "<your-dumbname>", "role": "provider" }`
    *
    * The signing payload is `{name}{website_url}`.
